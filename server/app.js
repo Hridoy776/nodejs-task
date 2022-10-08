@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(passport.initialize());
 
-// require('./config/passport')
+require('./config/passport')
 // root route
 app.get('/', (req, res) => {
     res.send("<h2>this is homepage</h2>")
@@ -94,10 +94,19 @@ app.post("/login", async (req, res) => {
 
 //  profile route
 
-app.get('/profile', (req, res) => {
-    res.send("<h2>this is homepage</h2>")
-})
-
+app.get(
+    "/profile",
+    passport.authenticate("jwt", { session: false }),
+    function (req, res) {
+      return res.status(200).send({
+        success: true,
+        user: {
+          id: req.user._id,
+          username: req.user.username,
+        },
+      });
+    }
+  );
 app.use((req, res, next) => {
     res.status(404).send("Sorry can't find that!")
 })
